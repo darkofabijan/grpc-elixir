@@ -53,12 +53,16 @@ defmodule GRPC.Integration.ServiceTest do
     end
   end
 
+  @tag timeout: 60_000
   test "Unary RPC works" do
     run_server Routeguide.RouteGuide.Server, fn(port) ->
       {:ok, channel} = GRPC.Stub.connect("localhost:#{port}")
-      point = Routeguide.Point.new(latitude: 409_146_138, longitude: -746_188_906)
-      feature = channel |> Routeguide.RouteGuide.Stub.get_feature(point)
-      assert feature == Routeguide.Feature.new(location: point, name: "409146138,-746188906")
+      Enum.each 1..100_000, fn(x) ->
+        IO.puts "#{x}"
+        point = Routeguide.Point.new(latitude: 409_146_138, longitude: -746_188_906)
+        feature = channel |> Routeguide.RouteGuide.Stub.get_feature(point)
+        assert feature == Routeguide.Feature.new(location: point, name: "409146138,-746188906")
+      end
     end
   end
 
